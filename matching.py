@@ -44,6 +44,13 @@ class Matcher:
 
     def next_frame(self):
         self.g = Graph()
+
+        for o in self.old:
+            self.g.add_vertex_P1(o)
+        for n in self.new:
+            self.g.add_vertex_P2(n)
+
+
         for o in self.old:
             for n in self.new:
                 if filter_edge(o, n):
@@ -92,15 +99,24 @@ class Matcher:
 
 class Graph:
     def __init__(self):
-        self.E = defaultdict(set)
-        self.R = defaultdict(set)
+        #self.E = defaultdict(set)
+        #self.R = defaultdict(set)
+
+        self.E = {}
+        self.R = {}
 
         self.M = {}
         self.RM = {}
 
+    def add_vertex_P1(self, a):
+        self.E[a] = set()
+
+    def add_vertex_P2(self, b):
+        self.R[b] = set()
+
     def add_edge(self, a, b):
         self.E[a].add(b)
-        self.R[b].add(b)
+        self.R[b].add(a)
 
     def del_edge(self, a, b):
         self.E[a].remove(b)

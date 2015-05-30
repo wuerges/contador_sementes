@@ -136,7 +136,7 @@ while True:
         logging.info("AVERAGE AREA: " + str(average_area))
 
         valids = [cnt for cnt in contours if cv2.contourArea(cnt) > 0.25 * average_area]
-        larges = [cnt for cnt in contours if cv2.contourArea(cnt) > 1.25 * average_area]
+        #larges = [cnt for cnt in contours if cv2.contourArea(cnt) > 1.25 * average_area]
         #logging.info("LARGES: " + str(len(larges)))
 
 
@@ -147,32 +147,43 @@ while True:
             mean = cv2.mean(cnt)
             matcher.add_contour(mean)
 
-        for l in larges:
-            mean = cv2.mean(l)
-            matcher.add_contour((mean[0], mean[1], 1, 1))
+        #for l in larges:
+        #    mean = cv2.mean(l)
+        #    matcher.add_contour((mean[0], mean[1], 1, 1))
 
     matcher.next_frame()
     ms = matcher.get_matches()
 
     all_ms += ms
 
-    for (a, b) in all_ms[-10:-1]:
-        x = (int(a[0]), int(a[1]))
-        y = (int(b[0]), int(b[1]))
-        cv2.line(color, x, y ,(255,0,0),5)
+    #for (a, b) in all_ms[-10:-1]:
+    #    x = (int(a[0]), int(a[1]))
+    #    y = (int(b[0]), int(b[1]))
+    #    cv2.line(color, x, y ,(255,0,0),5)
 
         #xx = abs(abs(x[0]) - abs(y[0])) ** 2
         #yy = abs(abs(x[1]) - abs(y[1])) ** 2
 
-        font = cv2.FONT_HERSHEY_SIMPLEX
+        #font = cv2.FONT_HERSHEY_SIMPLEX
+
         #cv2.putText(color,str((xx + yy) ** 0.5),x, font, 4,(0,0,255),1,5)
         #cv2.putText(color,str(y[1]),y, font, 4,(0,0,255),1,5)
 
+    for (a, b) in ms:
+        x = (int(a[0]), int(a[1]))
+        y = (int(b[0]), int(b[1]))
+        cv2.line(color, x, y ,(255,0,0),5)
 
-    for obj in matcher.old:
-        cv2.circle(color,(int(obj[0]), int(obj[1])),20,(255,255,0),1)
-    for obj in matcher.new:
-        cv2.circle(color,(int(obj[0]), int(obj[1])),15,(100,100,0),1)
+
+    for obj in matcher.g.E:
+        cv2.circle(color,(int(obj[0]), int(obj[1])),10,(255,255,0),1)
+    for obj in matcher.g.R:
+        cv2.circle(color,(int(obj[0]), int(obj[1])),10,(0,255,255),1)
+
+    #for obj in matcher.old:
+    #    cv2.circle(color,(int(obj[0]), int(obj[1])),20,(255,255,0),1)
+    #for obj in matcher.new:
+    #    cv2.circle(color,(int(obj[0]), int(obj[1])),15,(100,100,0),1)
 
 
     #cv2.line(color, (0,350), (width, 350), (255,255,255), 1)
