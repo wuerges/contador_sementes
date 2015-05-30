@@ -172,6 +172,15 @@ class Graph:
                     self.add_match(a, b)
                 break
 
+    def edges(self):
+        es = set()
+        for o in self.E:
+            for d in self.E[o]:
+                es.add((o, d))
+
+        for d in self.R:
+            for o in self.R[d]:
+                es.add((o, d))
 
 
 #g = Graph()

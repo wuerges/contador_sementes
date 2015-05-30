@@ -169,6 +169,12 @@ while True:
         #cv2.putText(color,str((xx + yy) ** 0.5),x, font, 4,(0,0,255),1,5)
         #cv2.putText(color,str(y[1]),y, font, 4,(0,0,255),1,5)
 
+    for (a, b) in matcher.g.edges():
+        x = (int(a[0]), int(a[1]))
+        y = (int(b[0]), int(b[1]))
+        cv2.line(color, x, y ,(255,255,255),2)
+
+
     for (a, b) in ms:
         x = (int(a[0]), int(a[1]))
         y = (int(b[0]), int(b[1]))
