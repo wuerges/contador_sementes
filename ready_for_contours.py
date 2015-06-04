@@ -68,6 +68,7 @@ closeWin = "CloseWin"
 otsuWin = "Otsu"
 
 if options.verbose:
+    #for wn in [colorWin]:
     for wn in [winName, colorWin, closeWin]:
     #for wn in [winName, colorWin, closeWin, dstWin, otsuWin]:
         cv2.namedWindow(wn, cv2.CV_WINDOW_AUTOSIZE)
@@ -98,7 +99,7 @@ def enclosing_circle(cnt, img):
 
 average_area = 90
 
-matcher = matching.Matcher()
+matcher = matching.Matcher(height)
 
 all_ms = []
 
@@ -169,7 +170,7 @@ while True:
         #cv2.putText(color,str((xx + yy) ** 0.5),x, font, 4,(0,0,255),1,5)
         #cv2.putText(color,str(y[1]),y, font, 4,(0,0,255),1,5)
 
-    for (a, b) in matcher.g.edges():
+    for (a, b) in matcher.g.get_edges():
         x = (int(a[0]), int(a[1]))
         y = (int(b[0]), int(b[1]))
         cv2.line(color, x, y ,(255,255,255),2)
@@ -179,12 +180,31 @@ while True:
         x = (int(a[0]), int(a[1]))
         y = (int(b[0]), int(b[1]))
         cv2.line(color, x, y ,(255,0,0),5)
+        print "y dist: ", (a[1] - b[1])
+        print "x dist: ", (a[0] - b[0])
 
 
     for obj in matcher.g.E:
         cv2.circle(color,(int(obj[0]), int(obj[1])),10,(255,255,0),1)
     for obj in matcher.g.R:
         cv2.circle(color,(int(obj[0]), int(obj[1])),10,(0,255,255),1)
+
+
+    af = matcher.average_falls()
+    for k in matcher.g.R:
+        if not k in matcher.g.RM:
+            # TODO check height in unmatched. Must be in the beginning.
+            print "!!!!! unmatched in P2 - new element !"
+            if k[1] > (2 * af):
+                print "element positioned too far down!!!", k
+                cv2.circle(color,(int(k[0]), int(k[1])),12,(255,255,255),5)
+                #imshow( colorWin, color )
+                #cv2.waitKey()
+    for k in matcher.g.E:
+        if not k in matcher.g.M:
+            print "!!!!! unmatched in P1"
+
+
 
     #for obj in matcher.old:
     #    cv2.circle(color,(int(obj[0]), int(obj[1])),20,(255,255,0),1)
@@ -194,7 +214,7 @@ while True:
 
     #cv2.line(color, (0,350), (width, 350), (255,255,255), 1)
     imshow( colorWin, color )
-    video.write(color)
+    #video.write(color)
 
     #n =  cv2.morphologyEx(n,cv2.MORPH_OPEN,kernel)
     #n =  cv2.morphologyEx(n,cv2.MORPH_OPEN,kernel)

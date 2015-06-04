@@ -3,31 +3,26 @@ import logging
 import cv2
 
 
-average_fall = 70
-
-def filter_edge(a, b):
-    global average_fall
+def filter_edge(a, b, af):
     if abs(a[0] - b[0]) > 30:
         return False
 
     if b[1] < a[1]:
         return False
 
-    d = b[1] - a[1]
-    logging.info(average_fall)
-    if d < average_fall * 2:
-
-        average_fall = (d + average_fall) / 2
-
-        return True
+    if af:
+        d = b[1] - a[1]
+        if af * 0.70 > d > af * 0.70:
+            return False
 
     return True
-    return False
 
 class Matcher:
-    def __init__(self):
+    def __init__(self, hei):
         self.old = []
         self.new = []
+        self.height = hei
+        self.falls = []
 
         self.count = 0
 
@@ -53,31 +48,50 @@ class Matcher:
 
         for o in self.old:
             for n in self.new:
-                if filter_edge(o, n):
+                if filter_edge(o, n, self.average_falls()):
                     self.g.add_edge(o, n)
 
         self.g.match()
         self.g.augment_matching()
 
-        self.old = self.new
+        #self.old = self.new
+        self.old = []
         self.new = []
 
+        af = self.average_falls()
+
         for k in self.g.E:
-            self.count += 1
             if not k in self.ages:
                 self.ages[k] = 0
 
             if k in self.g.M:
-                self.count -= 1
                 n = self.g.M[k]
                 self.ages[n] = self.ages[k] + 1
                 if k in self.objects:
                     self.objects.remove(k)
                 self.objects.add(n)
+                self.old.append(n)
             else:
-                self.old.append(k)
+                if af:
+                    if k[1] + (2 * af) > self.height:
+                        print "counting one object!"
+                        self.count += 1
+                    else:
+                        print "could not match object! moving it down!"
+                        (x, y, i, j) = k
 
+                        self.old.append((x, y+af, i, j))
+                else:
+                    print "have no average, adding back without moving it down"
+                    self.old.append(k)
 
+        self.update_falls()
+        for k in self.g.R:
+            if not k in self.g.RM:
+                if k[1] < (3 * af):
+                    self.old.append(k)
+                else:
+                    print "wont accept new objets from bellow 2 * af"
 
         total_0 = [k for k in self.objects if self.ages[k] > 0]
         total_1 = [k for k in self.objects if self.ages[k] > 1]
@@ -91,6 +105,17 @@ class Matcher:
         logging.info("Total objects 3 = " + str(len(total_3)))
         logging.info("Total objects 4 = " + str(len(total_4)))
         logging.info("count = " + str(self.count))
+
+    def update_falls(self):
+        nfs = [b[1] - a[1] for (a, b) in self.get_matches()]
+        self.falls = (self.falls + nfs)[0:10]
+
+    def average_falls(self):
+        if self.falls:
+            return sum(self.falls) / len(self.falls)
+        else:
+            # chosen carefully for this video
+            return 70;
 
 
     def get_matches(self):
@@ -172,7 +197,7 @@ class Graph:
                     self.add_match(a, b)
                 break
 
-    def edges(self):
+    def get_edges(self):
         es = set()
         for o in self.E:
             for d in self.E[o]:
@@ -181,6 +206,8 @@ class Graph:
         for d in self.R:
             for o in self.R[d]:
                 es.add((o, d))
+
+        return es
 
 
 #g = Graph()
