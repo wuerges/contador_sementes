@@ -23,6 +23,9 @@ class Window:
             cv2.circle(self.frame,(int(p.x), int(p.y)),int(p.radius),(255,255,0),esp)
 
         if p.antecessor:
-            cv2.line(self.frame, (int(p.x), int(p.y)), (int(p.antecessor.x), int(p.antecessor.y)), (255,255,255), esp)
+            if n == 0:
+                cv2.line(self.frame, (int(p.x), int(p.y)), (int(p.antecessor.x), int(p.antecessor.y)), (255,0, 0), esp)
+            else:
+                cv2.line(self.frame, (int(p.x), int(p.y)), (int(p.antecessor.x), int(p.antecessor.y)), (255,255,255), esp)
             self.mostraPonto(p.antecessor, n=n+1)
 

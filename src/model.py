@@ -1,5 +1,6 @@
 import cv2
 import copy
+import math
 
 class Filtro:
     def __init__(self, n):
@@ -8,10 +9,18 @@ class Filtro:
 
     def atualiza(self, ms):
         nfs = [self.valor(e) for e in ms]
-        self.amostras = (self.amostras + nfs)[0:self.n]
+        self.amostras = (nfs + self.amostras)[0:self.n]
+
+    def dp(self):
+        print self.amostras
+        if len(self.amostras) > 10:
+            m = self.media()
+            d = sum([(a - m)**2 for a in self.amostras]) / len(self.amostras)
+            return math.sqrt(d)
+        return None
 
     def media(self):
-        if self.amostras:
+        if len(self.amostras) > 10:
             return sum(self.amostras) / len(self.amostras)
         return None
 
@@ -20,11 +29,13 @@ class Contorno(Filtro):
         return cv2.contourArea(p.cnt)
 
 class Movimento(Filtro):
-    def valor(self, (a, b)):
-        return b.y - a.y
+    #def valor(self, (a, b)):
+    #    return b.y - a.y
+    def valor(self, v):
+        return v
 
-movimento = Movimento(20)
-contorno = Contorno(20)
+movimento = Movimento(30)
+contorno = Contorno(30)
 
 class Ponto:
     serialSeed = 0
@@ -56,11 +67,27 @@ class Ponto:
         if self.y > o.y:
             return False
 
-        af = movimento.media()
-        if af and af * 0.7 < (self.y - o.y) < af * 1.3:
+        #af = movimento.media()
+        af = 80
+        #dp = movimento.dp()
+        dp = 15
+        if af and af - (3 * dp) < (self.y - o.y) < af + (3 *  dp):
             return False
 
         return True
+
+    def mediaQuedas(self):
+        qs = self.quedas()
+        if qs:
+            return sum(qs) / len(qs)
+        return None
+
+    def quedas(self):
+        if self.antecessor:
+            return [self.y - self.antecessor.y] + self.antecessor.quedas()
+        else:
+            return []
+
 
     def atualiza(self, o):
 
