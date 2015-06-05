@@ -9,7 +9,9 @@ class Rastreador:
         self.count = 0
 
     def novo(self, o):
-        self.objects_cand.add(model.Ponto(o))
+        p = model.Ponto(o)
+        if p.radius > 15:
+            self.objects_cand.add(p)
 
     def rastreia(self):
         matches = matching.Matcher(self.objects, self.objects_cand).match()
@@ -32,10 +34,13 @@ class Rastreador:
             if not af or n.y < model.movimento.media() * 1.5:
                 self.objects.add(n)
 
+        self.objects_cand = set()
         self.limpa()
 
         print "Media", model.movimento.media()
         print "DP", model.movimento.dp()
+        print "Media Cont", model.contorno.media()
+        print "Media Cont DP", model.contorno.dp()
 
     def limpa(self):
         af = model.movimento.media()
@@ -43,7 +48,7 @@ class Rastreador:
         if af:
 
             t = len(self.objects)
-            self.commited = set([o for o in self.objects if (o.y + af) > self.altura and o.age > 3])
+            self.commited = set([o for o in self.objects if (o.y + af) > self.altura])
             self.objects = set([o for o in self.objects if (o.y + af) <= self.altura])
 
             print "limpando1: ", self.count, len(self.commited)
@@ -51,6 +56,7 @@ class Rastreador:
             for o in self.commited:
                 mq = o.mediaQuedas()
                 if mq:
+                    model.contorno.atualiza([o])
                     model.movimento.atualiza([mq])
             self.count += len(self.commited)
 

@@ -26,7 +26,7 @@ class Filtro:
 
 class Contorno(Filtro):
     def valor(self, p):
-        return cv2.contourArea(p.cnt)
+        return p.radius
 
 class Movimento(Filtro):
     #def valor(self, (a, b)):
@@ -59,22 +59,24 @@ class Ponto:
 
 #checa se o @o e' um bom candidato para casar
     def candMatch(self, o):
+        af = 80
+        dp = 15
 # checa deslocamento X
         if abs(self.x - o.x) > 30:
             return False
 
+        return (o.y - dp) > self.y
+
 # checa se esta abaixo do @o
-        if self.y > o.y:
-            return False
+        #if self.y > o.y:
+        #    return False
 
         #af = movimento.media()
-        af = 80
         #dp = movimento.dp()
-        dp = 15
-        if af and af - (3 * dp) < (self.y - o.y) < af + (3 *  dp):
-            return False
+        #if af and (af - dp) < (o.y - self.y) < (af + dp):
+        #    return False
 
-        return True
+        #return True
 
     def mediaQuedas(self):
         qs = self.quedas()

@@ -1,4 +1,5 @@
 import cv2
+import copy
 import control
 import view
 import logging
@@ -77,18 +78,22 @@ def enclosing_circle(cnt, img):
 
 average_area = 90
 
-rastr = control.Rastreador(height)
+#rastr = control.Rastreador(height)
+rastr2 = control.Rastreador(height)
+
+bgs2 = cv2.BackgroundSubtractorMOG2()
 
 while True:
 
-    d = diffImg(t_minus, t, t_plus)
+
+    #d = diffImg(t_minus, t, t_plus)
     #imshow( winName, d )
 
-    blur = cv2.GaussianBlur(d,(7,7),0)
-    ret1,th1 = cv2.threshold(blur,10,255,cv2.THRESH_BINARY)
+    #blur = cv2.GaussianBlur(d,(7,7),0)
+    #ret1,th1 = cv2.threshold(blur,10,255,cv2.THRESH_BINARY)
     #ret2,otsu = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
+    #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
 
     #otsu =  cv2.morphologyEx(otsu,cv2.MORPH_OPEN,kernel)
     #imshow( otsuWin, th1)
@@ -100,56 +105,44 @@ while True:
 
     #n = cv2.normalize(dt, dt, 0, 1.0, cv2.NORM_MINMAX)
     #n =  cv2.morphologyEx(d,cv2.MORPH_OPEN,kernel)
-    n =  cv2.morphologyEx(th1,cv2.MORPH_CLOSE,kernel)
+    #n =  cv2.morphologyEx(th1,cv2.MORPH_CLOSE,kernel)
     #imshow( dstWin, n )
-    n =  cv2.morphologyEx(n,cv2.MORPH_OPEN,kernel)
+    #n =  cv2.morphologyEx(n,cv2.MORPH_OPEN,kernel)
 
-    contours,hierarchy = cv2.findContours(n, 1, 2)
+    #contours,hierarchy = cv2.findContours(n, 1, 2)
 
-    for cnt in contours:
-        rastr.novo(cnt)
+    #for cnt in contours:
+        #rastr.novo(cnt)
 
-    rastr.rastreia()
-
+    #rastr.rastreia()
+    #color2 = copy.copy(color)
     colorWin = view.Window("ColoredImage", color)
-    for o in rastr.objects:
+
+    #for o in rastr.objects:
+    #    colorWin.mostraPonto(o)
+    #colorWin.show()
+
+    bg2 = bgs2.apply(t)
+    # cv2.imshow( "bg2", bg2 )
+    colorWin = view.Window("ColoredImage", color)
+    colorWin2 = view.Window("ColoredImage2", copy.copy(bg2))
+    kernel3 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
+    k3 = cv2.morphologyEx(bg2, cv2.MORPH_OPEN, kernel3)
+
+    contours2,hierarchy2 = cv2.findContours(bg2, 1, 2)
+    for cnt in contours2:
+        rastr2.novo(cnt)
+
+    rastr2.rastreia()
+
+    for o in rastr2.objects:
+        colorWin2.mostraPonto(o)
         colorWin.mostraPonto(o)
 
-    #for (a, b) in matcher.g.get_edges():
-    #    x = (int(a[0]), int(a[1]))
-    #    y = (int(b[0]), int(b[1]))
-    #    cv2.line(color, x, y ,(255,255,255),2)
-
-
-    #for (a, b) in ms:
-    #    x = (int(a[0]), int(a[1]))
-    #    y = (int(b[0]), int(b[1]))
-    #    cv2.line(color, x, y ,(255,0,0),5)
-    #    print "y dist: ", (a[1] - b[1])
-    #    print "x dist: ", (a[0] - b[0])
-
-
-    #for obj in matcher.g.E:
-    #    cv2.circle(color,(int(obj[0]), int(obj[1])),10,(255,255,0),1)
-    #for obj in matcher.g.R:
-    #    cv2.circle(color,(int(obj[0]), int(obj[1])),10,(0,255,255),1)
-
-
-    #cv2.line(color, (0,350), (width, 350), (255,255,255), 1)
     colorWin.show()
-    #video.write(color)
-
-    #n =  cv2.morphologyEx(n,cv2.MORPH_OPEN,kernel)
-    #n =  cv2.morphologyEx(n,cv2.MORPH_OPEN,kernel)
-
-    #try:
-    #    imshow( closeWin, n )
-    #except:
-    #    pass
+    colorWin2.show()
 
 
-# Read next image
-    #t_minus = t
     t = t_plus
     color = next_frame()
     if color is None:
@@ -158,11 +151,12 @@ while True:
     t_plus = cv2.cvtColor(color, cv2.COLOR_RGB2GRAY)
     t_plus = rotate(t_plus)
 
-    if options.verbose and contours and (cv2.waitKey(10) & 0xFF == ord('q')):
+    if options.verbose and rastr2.objects and (cv2.waitKey(10) & 0xFF == ord('q')):
         break
 
 cv2.destroyAllWindows()
 video.release()
 print "Results"
-print "Total", rastr.count
+#print "Total", rastr.count
+print "Total", rastr2.count
 
