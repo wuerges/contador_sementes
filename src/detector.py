@@ -1,5 +1,6 @@
 import cv2
 import copy
+import model
 import control
 import view
 import logging
@@ -151,11 +152,23 @@ while True:
     t_plus = cv2.cvtColor(color, cv2.COLOR_RGB2GRAY)
     t_plus = rotate(t_plus)
 
-    if options.verbose and rastr2.objects and (cv2.waitKey(10) & 0xFF == ord('q')):
+    if options.verbose and rastr2.objects and (cv2.waitKey(1) & 0xFF == ord('q')):
         break
 
 cv2.destroyAllWindows()
 video.release()
+
+def countDiv(a, x):
+    if a / x < 2:
+        return 1
+    else:
+        return 2
+
+with open("results.txt", "w") as f:
+    for (c, a) in zip(model.contorno.amostras, model.area.amostras):
+        ns = [str(countDiv(a, x)) for x in range(1600, 2500, 50)]
+        print >> f, (str(c) + ", " + str(a) + ", " + ", ".join(ns))
+
 print "Results"
 #print "Total", rastr.count
 print "Total", rastr2.count

@@ -24,6 +24,10 @@ class Filtro:
             return sum(self.amostras) / len(self.amostras)
         return None
 
+class Area(Filtro):
+    def valor(self, p):
+        return p.area
+
 class Contorno(Filtro):
     def valor(self, p):
         return p.radius
@@ -34,6 +38,7 @@ class Movimento(Filtro):
     def valor(self, v):
         return v
 
+area = Area(30)
 movimento = Movimento(30)
 contorno = Contorno(30)
 
@@ -46,6 +51,7 @@ class Ponto:
         self.x = self.mean[0]
         self.y = self.mean[1]
         (x,y),radius = cv2.minEnclosingCircle(contour)
+        self.area = cv2.contourArea(contour)
         self.radius = radius
         self.antecessor = None
         self.age = 0
@@ -95,6 +101,7 @@ class Ponto:
 
         self.antecessor = copy.copy(self)
 
+        self.area = o.area
         self.radius = o.radius
         self.cnt = o.cnt
         self.mean = o.mean
