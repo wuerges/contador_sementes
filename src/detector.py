@@ -152,7 +152,8 @@ while True:
     t_plus = cv2.cvtColor(color, cv2.COLOR_RGB2GRAY)
     t_plus = rotate(t_plus)
 
-    if options.verbose and rastr2.objects and (cv2.waitKey(1) & 0xFF == ord('q')):
+    #if options.verbose and rastr2.objects and (cv2.waitKey(1) & 0xFF == ord('q')):
+    if (cv2.waitKey() & 0xFF == ord('q')):
         break
 
 cv2.destroyAllWindows()

@@ -65,13 +65,11 @@ class Ponto:
 
 #checa se o @o e' um bom candidato para casar
     def candMatch(self, o):
-        af = 80
-        dp = 15
 # checa deslocamento X
         if abs(self.x - o.x) > 30:
             return False
 
-        return (o.y - dp) > self.y
+        return (self.y + 100)  > o.y > (self.y + 10)
 
 # checa se esta abaixo do @o
         #if self.y > o.y:

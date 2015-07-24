@@ -11,23 +11,23 @@ class Rastreador:
 
     def novo(self, o):
         p = model.Ponto(o)
-        if p.radius < 15:
-            return
+        #if p.radius < 15:
+        #    return
         self.objects_cand.add(p)
-        ma = 2000
-        if ma:
-            nels = p.area / 1850
-            if nels >= 2:
-            #if False:
-            #if p.radius > (100 - 30):
-                p.radius /= 2
-                p.y -= p.radius / 2
-
-                p2 = model.Ponto(o)
-                p2.radius /= 2
-                p2.y += (p.radius / 2)
-
-                self.objects_cand.add(p2)
+        #ma = 2000
+        #if ma:
+        #    nels = p.area / 1850
+        #    if nels >= 2:
+        #    #if False:
+        #    #if p.radius > (100 - 30):
+        #        p.radius /= 2
+        #        p.y -= p.radius / 2
+        #
+        #        p2 = model.Ponto(o)
+        #        p2.radius /= 2
+        #        p2.y += (p.radius / 2)
+        #
+        #        self.objects_cand.add(p2)
 
                 #print "NUMBER OF AREAS", nels
                 #cv2.waitKey()
@@ -50,7 +50,9 @@ class Rastreador:
 
         for n in self.objects_cand:
             af = model.movimento.media()
-            if not af or n.y < model.movimento.media() * 1.5:
+            if not af:
+                af = 100.0
+            if n.y < af * 1.5:
                 self.objects.add(n)
 
         self.objects_cand = set()
@@ -64,14 +66,16 @@ class Rastreador:
         #print "Media Area DP", model.area.dp()
 
     def limpa(self):
-        #af = model.movimento.media()
-        af = 90
+        af = model.movimento.media()
+        if not af:
+            af = 30
 
-        if af:
+        #if af:
 
-            t = len(self.objects)
-            self.commited = set([o for o in self.objects if (o.y + af) > self.altura])
-            self.objects = set([o for o in self.objects if (o.y + af) <= self.altura])
+            #t = len(self.objects)
+            #self.commited = set([o for o in self.objects if (o.y + af) > self.altura])
+            #self.commited = set([o for o in self.objects if (o.y + af) > self.altura])
+            #self.objects = set([o for o in self.objects if (o.y + af) <= self.altura])
 
             #print "limpando1: ", self.count, len(self.commited)
             #print self.commited
@@ -81,8 +85,14 @@ class Rastreador:
             #    mq = o.mediaQuedas()
             #    if mq:
             #        model.movimento.atualiza([mq])
-            self.count += len(self.commited)
+            #self.count += len(self.commited)
+            #print "contando:", len(self.commited)
 
-        self.objects = set([o for o in self.objects if o.fresh < 3])
-        #print "limpando2: ", self.count, len(self.objects)
+        fresh = [o for o in self.objects if o.fresh < 3]
+
+        self.commited = set([o for o in fresh if o.age > 5])
+        self.count += len(self.commited)
+
+        self.objects = set([o for o in fresh if o.age <= 5])
+        print "limpando2: ", self.count, len(self.objects)
 
