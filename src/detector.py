@@ -153,7 +153,7 @@ while True:
     t_plus = rotate(t_plus)
 
     #if options.verbose and rastr2.objects and (cv2.waitKey(1) & 0xFF == ord('q')):
-    if (cv2.waitKey() & 0xFF == ord('q')):
+    if (cv2.waitKey(1) & 0xFF == ord('q')):
         break
 
 cv2.destroyAllWindows()
